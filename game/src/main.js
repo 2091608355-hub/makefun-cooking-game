@@ -5,7 +5,8 @@
 //
 // ?seed=N fixes the order pattern. ?shot=start|play|serve|end (with &seed=N) stages that
 // scene instead of running the loop, paints it twice and sets window.__shotReady for a
-// screenshot.
+// screenshot. With &export=<name>.jpg the staged scene is also saved as a JPEG download,
+// so a plain page load produces the screenshot file without a console.
 import { BEST_KEY, STEP } from './config.js';
 import { createRandom } from './random.js';
 import { createWorld, EVENT_ERROR, EVENT_EXPIRED, EVENT_OVER, EVENT_READY, EVENT_SERVED } from './world.js';
@@ -19,6 +20,7 @@ const MAX_FRAME = 0.25;
 
 const params = new URLSearchParams(window.location.search);
 const shot = params.get('shot');
+const exportName = params.get('export');
 const seedParam = Number.parseInt(params.get('seed') ?? '', 10);
 const seed = Number.isInteger(seedParam) ? seedParam : Math.floor(Math.random() * 4294967296);
 
@@ -51,7 +53,15 @@ function runShot(name) {
     renderer.draw(world.state, scene.screen, scene.best);
     painted += 1;
     if (painted < 2) requestAnimationFrame(paint);
-    else window.__shotReady = true;
+    else {
+      window.__shotReady = true;
+      if (exportName) {
+        const link = document.createElement('a');
+        link.href = canvas.toDataURL('image/jpeg', 0.85);
+        link.download = exportName;
+        link.click();
+      }
+    }
   }
   requestAnimationFrame(paint);
 }
