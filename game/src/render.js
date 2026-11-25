@@ -237,20 +237,23 @@ function drawOrderTicket(ctx, order, x, y, w, h, plate, index) {
   ctx.strokeStyle = matched ? '#2e7d32' : '#d7ccc8';
   ctx.lineWidth = matched ? 4 : 2;
   ctx.stroke();
-  text(ctx, `#${order.id}  ${order.recipe.name}`, 14, 26, 19, PALETTE.ink);
-  text(ctx, `$${order.recipe.price}`, w - 14, 26, 19, '#2e7d32', '800', 'right');
+  text(ctx, `#${order.id}  ${order.recipe.name}`, 14, 22, 18, PALETTE.ink);
+  text(ctx, `$${order.recipe.price}`, w - 14, 22, 18, '#2e7d32', '800', 'right');
   order.recipe.needs.forEach((need, i) => {
-    drawIngredient(ctx, need, 30 + i * 44, 62, 36);
+    drawIngredient(ctx, need, 30 + i * 44, 48, 28);
   });
-  text(ctx, order.recipe.needs.map((n) => INGREDIENTS[n.replace('_chopped', '')]?.name ?? n).join(' + '), 14, 92, 13, PALETTE.muted, '600');
+  if (matched) {
+    text(ctx, 'READY — click to serve!', w / 2, 76, 14, '#2e7d32', '800', 'center');
+  } else {
+    text(ctx, order.recipe.needs.map((n) => INGREDIENTS[n.replace('_chopped', '')]?.name ?? n).join(' + '), 14, 76, 12, PALETTE.muted, '600');
+  }
   const frac = Math.max(0, order.timeLeft / order.total);
   ctx.fillStyle = '#e0d6c8';
-  roundRect(ctx, 14, h - 18, w - 28, 8, 4);
+  roundRect(ctx, 14, h - 10, w - 28, 8, 4);
   ctx.fill();
   ctx.fillStyle = frac > 0.5 ? '#4caf50' : frac > 0.25 ? '#f2c94c' : '#d64541';
-  roundRect(ctx, 14, h - 18, (w - 28) * frac, 8, 4);
+  roundRect(ctx, 14, h - 10, (w - 28) * frac, 8, 4);
   ctx.fill();
-  if (matched) text(ctx, 'READY — click to serve!', w / 2, h - 26, 14, '#2e7d32', '800', 'center');
   ctx.restore();
 }
 
@@ -342,7 +345,7 @@ function drawPlateArea(ctx, state) {
   const p = LAYOUT.plate;
   drawPanel(ctx, p.x, p.y, p.w, p.h, '#6d4c41');
   text(ctx, 'ASSEMBLY PLATE', p.x + p.w / 2, p.y + 24, 15, '#fff8e7', '800', 'center');
-  drawDish(ctx, state.plate, p.x + p.w / 2, p.y + 210, 240);
+  drawDish(ctx, state.plate, p.x + p.w / 2, p.y + 216, 210);
   const label = state.plate.length === 0
     ? 'Click ready ingredients to stack them here'
     : state.plate.map((n) => INGREDIENTS[n.replace('_chopped', '')]?.name ?? n).join(' + ');
@@ -402,7 +405,7 @@ function drawKitchen(ctx, state) {
   ctx.fillStyle = '#5d4037';
   roundRect(ctx, o.x - 8, o.y - 8, o.w + 16, o.h + 16, 12);
   ctx.fill();
-  text(ctx, 'ORDER BOARD', o.x + 4, o.y - 14, 13, PALETTE.ink, '800');
+  text(ctx, 'ORDER BOARD', o.x + 4, o.y + 4, 13, '#fff8e7', '800');
   state.orders.forEach((order, i) => {
     const w = (o.w - 16) / 3;
     drawOrderTicket(ctx, order, o.x + 8 + i * w, o.y + 8, w - 8, o.h - 16, state.plate, i);
